@@ -99,7 +99,7 @@ class TCPHandler(threading.Thread):
     #先获取IP
     Post = self.ClientSock.recv(MAX_BUFFER)
     Posts = str(Post,encoding='utf-8')
-    ret=re.search(r' Host: (([0-9]+).([0-9]+).([0-9]+).([0-9]+))',Posts)
+    ret=re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)',Posts)
     addresss = [int(r) for r in ret.groups()]
     port = 80
     SendMessage = struct.pack('!' + str(4) + 'BH', *addresss, port)
