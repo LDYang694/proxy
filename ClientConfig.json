@@ -1,0 +1,9 @@
+{
+  "RemoteIP":"172.16.1.2",
+  "RemotePort":5000,
+  "LocalIP":"127.0.0.1",
+  "LocalPort":5000,
+  "Username":"",
+  "Password":"",
+  "Method":0
+}
