@@ -172,7 +172,7 @@ class TCPHandler(threading.Thread):
     # First Handshake
     RawPost=self.ClientSock.recv(MAX_BUFFER)
     # Post=Encipher(RawPost)
-    self.ClientSock.send(MyHandShake(Post))
+    self.ClientSock.send(MyHandShake(RawPost))
     #第二次建立连接
     # RawPost=self.ClientSock.recv(MAX_BUFFER)
     # Post=Encipher(RawPost)
