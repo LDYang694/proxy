@@ -23,6 +23,12 @@ def read_key(filename):
         # 将读出数据通过PublicKey.load_pkcs1()转换为公钥
         pubkey = rsa.PublicKey.load_pkcs1(pub_data)
         print(pubkey)
+    with open("%s" % filename, "r") as file_pub:
+        # 从文件中读出数据
+        pub_data = file_pub.read()
+        # 将读出数据通过PublicKey.load_pkcs1()转换为公钥
+        prikey = rsa.PrivateKey.load_pkcs1(pub_data)
+        print(prikey)
     # # 取出私钥
     # with open("private.pub", "r") as file_pri:
     #     pri_data = file_pri.read()
@@ -32,5 +38,5 @@ def read_key(filename):
 
 # generate_and_save_key("vpn_client")
 # generate_and_save_key("vpn_server")
-read_key("vpn_client")
+read_key("vpn_server")
 

@@ -14,7 +14,7 @@ class Encipher():
             self.server_pubkey = rsa.PublicKey.load_pkcs1(pub_data)
         with open("vpn_server", "r") as file_pri:
             pri_data = file_pri.read()
-            self.server_prikey = rsa.PublicKey.load_pkcs1(pri_data)
+            self.server_prikey = rsa.PrivateKey.load_pkcs1(pri_data)
 
     def get_encrypted_xor_key(self):
         return rsa.encrypt(self.xor_key.to_bytes(1, byteorder='big'), self.server_pubkey)
