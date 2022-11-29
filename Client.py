@@ -4,29 +4,23 @@ import threading
 import os
 import json
 import re
+from utils import Encipher
 
 # Define 4 status of the HandShake period.
-REFUSED=0 # Connection denied by this server.
-TCP=1 # Build TCP connection with the remoteserver
-UDP=2 # Build UDP association with the remoteserver
-BIND=3 # Reversed Link (Not implemented yet)
+REFUSED = 0  # Connection denied by this server.
+TCP = 1  # Build TCP connection with the remoteserver
+UDP = 2  # Build UDP association with the remoteserver
+BIND = 3  # Reversed Link (Not implemented yet)
 
-MAX_BUFFER=4096 # The max size of the post recieved
-MAX_CLIENT=3 # Maximum waiting clients num
+MAX_BUFFER = 4096  # The max size of the post recieved
+MAX_CLIENT = 3  # Maximum waiting clients num
 
-Method=0 # Authentacation method.
+Method = 0  # Authentacation method.
 # 0 represents no authentacation
 # 2 represents Username-Password
-Username=''
-Passwd=''
+Username = ''
+Passwd = ''
 
-def Encipher(Post):
-  CipheredPost=b''
-  Key = 0x3c
-  for byte in Post:
-    Cipheredbyte=byte^Key
-    CipheredPost+=bytes((Cipheredbyte,))
-  return CipheredPost
 
 def Construct():
   ULen=len(Username)
@@ -49,12 +43,13 @@ class SendPostTransmitter(threading.Thread):
     while True:
       try:
         Post=self.AcceptSock.recv(MAX_BUFFER)
-        # SafePost=Encipher(Post)
-        self.SendSock.send(Post)
+         # SafePost=Encipher(Post)
+        self.SendSock.send(encipher.XOR_encrypt(Post))
       except BrokenPipeError:
         pass
       except ConnectionResetError:
         pass
+
 
 class RecvPostTransmitter(threading.Thread):
   '''
@@ -68,8 +63,8 @@ class RecvPostTransmitter(threading.Thread):
     while True:
       try:
         Post=self.AcceptSock.recv(MAX_BUFFER)
-        # SafePost=Encipher(Post)
-        self.SendSock.send(Post)
+         # SafePost=Encipher(Post)
+        self.SendSock.send(encipher.XOR_encrypt(Post))
       except BrokenPipeError:
         pass
       except ConnectionResetError:
@@ -88,7 +83,17 @@ class TCPHandler(threading.Thread):
       self.RemoteSock.connect((RemoteAddress,RemotePort))
     except:
       print('Some error occured.')
+
   def run(self):
+     # step1: 将xor_key用proxy.pub加密后发送给proxy
+    encipher.gen_new_xor_key()
+    self.RemoteSock.send(
+      struct.pack(
+        '!64s',
+        encipher.get_encrypted_xor_key()
+      )
+    )
+     # TODO encrypt
     if Method == 2:
       Request=Construct()
       self.RemoteSock.send(Request)
@@ -96,27 +101,30 @@ class TCPHandler(threading.Thread):
       if Answer != b'\x05\x00':
         print('Invalid Username or wrong password.')
         os.sys.exit()
-    #先获取IP
+
+     # step2：接受browser的第一个包，告知proxy IP和port
     Post = self.ClientSock.recv(MAX_BUFFER)
-    Posts = str(Post,encoding='utf-8')
-    ret=re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)',Posts)
-    addresss = [int(r) for r in ret.groups()]
+    addresss = [int(r) for r in re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)', str(Post, encoding='utf-8')).groups()]
     port = 80
-   
-    SendMessage = struct.pack('!' + str(4) + 'BH', *addresss, port)
-    self.RemoteSock.send(SendMessage)
-    rec= self.RemoteSock.recv(MAX_BUFFER)
-    self.RemoteSock.send(Post)
-    SendThread=SendPostTransmitter(self.ClientSock,self.RemoteSock)
-    AcceptThread=RecvPostTransmitter(self.RemoteSock,self.ClientSock)
+    self.RemoteSock.send(encipher.XOR_encrypt(
+      struct.pack(
+        '!' + str(4) + 'BH',
+        *addresss, port
+      )
+    ))
+     # 接受proxy的确认包
+    encipher.XOR_encrypt(self.RemoteSock.recv(MAX_BUFFER))
+     # step3：将browser的第一个包发送给proxy
+    self.RemoteSock.send(encipher.XOR_encrypt(Post))
+     # step4：开始持续发送和接受包
+    SendThread = SendPostTransmitter(self.ClientSock, self.RemoteSock)
+    AcceptThread = RecvPostTransmitter(self.RemoteSock, self.ClientSock)
     SendThread.start()
     AcceptThread.start()
 
 
- 
-      
-
 if __name__ == '__main__':
+  encipher = Encipher()
   ServerSock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
   print('Welcome !\n')
   try:
