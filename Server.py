@@ -166,7 +166,7 @@ class TCPHandler(threading.Thread):
         encrypted_xor_key = struct.unpack(
           '!64s',
           Post
-        )
+        )[0]
         encipher.decrypt_and_update_xor_key(encrypted_xor_key)
 
         # TODO encrypt
@@ -196,14 +196,14 @@ class TCPHandler(threading.Thread):
             return
         else:
             # Assemble the answer
-            if PostInfo['AddrType'] == 0x01:
-                Length = 4
-                # Answer=struct.pack('!BBBB'+str(Length)+'sH',\
-                # PostInfo['Version'],PostInfo['REP'],PostInfo['RSV'],PostInfo['AddrType'],\
-                # socket.inet_aton(PostInfo['RemoteAddress']),PostInfo['RemotePort'])
-            else:
-                assert(False)
-                # Length = 0
+            # if PostInfo['AddrType'] == 0x01:
+            #     Length = 4
+            #     # Answer=struct.pack('!BBBB'+str(Length)+'sH',\
+            #     # PostInfo['Version'],PostInfo['REP'],PostInfo['RSV'],PostInfo['AddrType'],\
+            #     # socket.inet_aton(PostInfo['RemoteAddress']),PostInfo['RemotePort'])
+            # else:
+            #     assert(False)
+            # Length = 0
             # Connect or associate with the remote server.
             if Status == TCP:
                 try:

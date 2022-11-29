@@ -20,7 +20,7 @@ class Encipher():
         return rsa.encrypt(self.xor_key.to_bytes(1, byteorder='big'), self.server_pubkey)
 
     def decrypt_and_update_xor_key(self, encrypted_xor_key):
-        xor_key = rsa.decrypt(encrypted_xor_key, self.server_prikey)
+        xor_key = int.from_bytes(rsa.decrypt(encrypted_xor_key, self.server_prikey), "big")
         self.xor_key = xor_key
         return xor_key
 
