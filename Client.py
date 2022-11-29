@@ -102,9 +102,11 @@ class TCPHandler(threading.Thread):
     ret=re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)',Posts)
     addresss = [int(r) for r in ret.groups()]
     port = 80
+   
     SendMessage = struct.pack('!' + str(4) + 'BH', *addresss, port)
     self.RemoteSock.send(SendMessage)
     rec= self.RemoteSock.recv(MAX_BUFFER)
+    self.RemoteSock.send(Post)
     SendThread=SendPostTransmitter(self.ClientSock,self.RemoteSock)
     AcceptThread=RecvPostTransmitter(self.RemoteSock,self.ClientSock)
     SendThread.start()
