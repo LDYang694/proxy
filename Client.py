@@ -107,7 +107,7 @@ class TCPHandler(threading.Thread):
       self.RemoteSock.send(encipher.encrypt_info(Request))
       Answer=self.RemoteSock.recv(MAX_BUFFER)
       version,answer = struct.unpack("!BB",Answer)
-      if answer != b'\x00':
+      if answer != 0:
         print('answer',answer)
         print('Invalid Username or wrong password.')
         os.sys.exit()
