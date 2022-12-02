@@ -102,16 +102,16 @@ class TCPHandler(threading.Thread):
       )
     )
     #step2:构建登录包 发送给proxy 并接收验证
-    if need_login==1:
-      Request=Construct()
-      self.RemoteSock.send(encipher.encrypt_info(Request))
-      Answer=self.RemoteSock.recv(MAX_BUFFER)
-      version,answer = struct.unpack("!BB",Answer)
-      if answer != b'\x00':
-        print('Invalid Username or wrong password.')
-        os.sys.exit()
-    else:
-      pass
+    # if need_login==1:
+    #   Request=Construct()
+    #   self.RemoteSock.send(encipher.encrypt_info(Request))
+    #   Answer=self.RemoteSock.recv(MAX_BUFFER)
+    #   version,answer = struct.unpack("!BB",Answer)
+    #   if answer != b'\x00':
+    #     print('Invalid Username or wrong password.')
+    #     os.sys.exit()
+    # else:
+    #   pass
     
      
 
@@ -126,7 +126,7 @@ class TCPHandler(threading.Thread):
     finally:
       self.RemoteSock.send(encipher.XOR_encrypt(
         struct.pack(
-          '!' + str(4) + 'BH',
+          '!B' + str(4) + 'BH',VERSION,
           *addresss, port
         )
       ))

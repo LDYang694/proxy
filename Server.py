@@ -142,8 +142,8 @@ def MyConnect(Post):
     '''
     PostInfo = {}
     if Post != b'':
-        Format = '!' + str(4) + 'sH'
-        RawAddress, PostInfo['RemotePort'] = struct.unpack(Format, Post)
+        Format = '!B' + str(4) + 'sH'
+        PostInfo['Version'],RawAddress, PostInfo['RemotePort'] = struct.unpack(Format, Post)
         PostInfo['RemoteAddress'] = socket.inet_ntoa(RawAddress)
         return (PostInfo, ACCESS)
     else:
@@ -183,9 +183,9 @@ class TCPHandler(threading.Thread):
 
        
         #step2 登录认证
-        Post=self.ClientSock.recv(MAX_BUFFER)
-        Post = encipher.decrtpt_info(Post)
-        self.ClientSock.send(Verify(Post))
+        # Post=self.ClientSock.recv(MAX_BUFFER)
+        # Post = encipher.decrtpt_info(Post)
+        # self.ClientSock.send(Verify(Post))
 
         # step3：接受包含IP和port的包 并判断
         Post = encipher.XOR_encrypt(self.ClientSock.recv(MAX_BUFFER))
