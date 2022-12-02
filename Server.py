@@ -169,7 +169,7 @@ class TCPHandler(threading.Thread):
 
           pass
         finally:
-          handshake_rec = struct("!BBB",version,ask_pub_key,NEED_LOGIN)
+          handshake_rec = struct.pack("!BBB",version,ask_pub_key,NEED_LOGIN)
           self.ClientSock.send(handshake_rec)
           pass
 
