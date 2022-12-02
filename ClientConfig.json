@@ -3,7 +3,7 @@
   "RemotePort":5000,
   "LocalIP":"127.0.0.1",
   "LocalPort":5000,
-  "Username":"",
-  "Password":"",
-  "Method":0
+  "Username":"admin",
+  "Password":"123456",
+  "Method":2
 }
