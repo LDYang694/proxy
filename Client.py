@@ -120,10 +120,6 @@ class TCPHandler(threading.Thread):
       Post = self.ClientSock.recv(MAX_BUFFER)
       addresss = [int(r) for r in re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)', str(Post, encoding='utf-8')).groups()]
       port = 80
-    except Exception:
-      os.sys.exit()
-      pass
-    finally:
       self.RemoteSock.send(encipher.XOR_encrypt(
         struct.pack(
           '!B' + str(4) + 'BH',VERSION,
@@ -144,6 +140,11 @@ class TCPHandler(threading.Thread):
       AcceptThread = RecvPostTransmitter(self.RemoteSock, self.ClientSock)
       SendThread.start()
       AcceptThread.start()
+    except Exception:
+      # os.sys.exit()
+      print("error")
+      pass
+      
 
 
 if __name__ == '__main__':
