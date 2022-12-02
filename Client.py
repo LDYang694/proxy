@@ -121,6 +121,7 @@ class TCPHandler(threading.Thread):
       Post = self.ClientSock.recv(MAX_BUFFER)
       addresss = [int(r) for r in re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)', str(Post, encoding='utf-8')).groups()]
       port = 80
+      print("Get Http Pack to {}:{}".format(addresss,port))
     except Exception:
       raise Exception("Not Http Pack,can handler")
     self.RemoteSock.send(encipher.XOR_encrypt(
