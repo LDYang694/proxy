@@ -116,34 +116,31 @@ class TCPHandler(threading.Thread):
      
 
     # step3：接受browser的第一个包，告知proxy IP和port
-    try:
-      Post = self.ClientSock.recv(MAX_BUFFER)
-      addresss = [int(r) for r in re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)', str(Post, encoding='utf-8')).groups()]
-      port = 80
-      self.RemoteSock.send(encipher.XOR_encrypt(
-        struct.pack(
-          '!B' + str(4) + 'BH',VERSION,
-          *addresss, port
-        )
-      ))
-      # 接受proxy的确认包
-      confirm = encipher.XOR_encrypt(self.RemoteSock.recv(MAX_BUFFER))
-      version,status,rawaddress,port = struct.unpack("!BB"+str(4)+"sH",confirm)
-      if status==REFUSED:
-        #
-        os.sys.exit()
-      
-      # step4：将browser的第一个包发送给proxy
-      self.RemoteSock.send(encipher.XOR_encrypt(Post))
-      # step5：开始持续发送和接受包
-      SendThread = SendPostTransmitter(self.ClientSock, self.RemoteSock)
-      AcceptThread = RecvPostTransmitter(self.RemoteSock, self.ClientSock)
-      SendThread.start()
-      AcceptThread.start()
-    except Exception:
-      # os.sys.exit()
-      print("error")
-      pass
+  
+    Post = self.ClientSock.recv(MAX_BUFFER)
+    addresss = [int(r) for r in re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)', str(Post, encoding='utf-8')).groups()]
+    port = 80
+    self.RemoteSock.send(encipher.XOR_encrypt(
+      struct.pack(
+        '!B' + str(4) + 'BH',VERSION,
+        *addresss, port
+      )
+    ))
+    # 接受proxy的确认包
+    confirm = encipher.XOR_encrypt(self.RemoteSock.recv(MAX_BUFFER))
+    version,status,rawaddress,port = struct.unpack("!BB"+str(4)+"sH",confirm)
+    if status==REFUSED:
+      #
+      os.sys.exit()
+    
+    # step4：将browser的第一个包发送给proxy
+    self.RemoteSock.send(encipher.XOR_encrypt(Post))
+    # step5：开始持续发送和接受包
+    SendThread = SendPostTransmitter(self.ClientSock, self.RemoteSock)
+    AcceptThread = RecvPostTransmitter(self.RemoteSock, self.ClientSock)
+    SendThread.start()
+    AcceptThread.start()
+  
       
 
 
