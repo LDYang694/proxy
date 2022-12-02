@@ -35,3 +35,7 @@ class Encipher():
     def decrtpt_info(self,info):
         info = rsa.decrypt(info,self.server_prikey)
         return info
+    
+    def encrypt_info(self,info):
+        info = rsa.encrypt(info,self.server_prikey)
+        return info

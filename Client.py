@@ -104,7 +104,7 @@ class TCPHandler(threading.Thread):
     #step2:构建登录包 发送给proxy 并接收验证
     if need_login==1:
       Request=Construct()
-      self.RemoteSock.send(encipher.XOR_encrypt(Request))
+      self.RemoteSock.send(encipher.encrypt_info(Request))
       Answer=self.RemoteSock.recv(MAX_BUFFER)
       version,answer = struct.unpack("!BB",Answer)
       if answer != b'\x00':
