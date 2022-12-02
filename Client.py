@@ -121,7 +121,7 @@ class TCPHandler(threading.Thread):
       addresss = [int(r) for r in re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)', str(Post, encoding='utf-8')).groups()]
       port = 80
     except Exception:
-
+      os.sys.exit()
       pass
     finally:
       self.RemoteSock.send(encipher.XOR_encrypt(
