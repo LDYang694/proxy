@@ -108,6 +108,7 @@ class TCPHandler(threading.Thread):
       Answer=self.RemoteSock.recv(MAX_BUFFER)
       version,answer = struct.unpack("!BB",Answer)
       if answer != b'\x00':
+        print('answer',answer)
         print('Invalid Username or wrong password.')
         os.sys.exit()
     else:
