@@ -183,9 +183,9 @@ class TCPHandler(threading.Thread):
 
        
         #step2 登录认证
-        # Post=self.ClientSock.recv(MAX_BUFFER)
-        # Post = encipher.decrtpt_info(Post)
-        # self.ClientSock.send(Verify(Post))
+        Post=self.ClientSock.recv(MAX_BUFFER)
+        Post = encipher.decrtpt_info(Post)
+        self.ClientSock.send(Verify(Post))
 
         # step3：接受包含IP和port的包 并判断
         Post = encipher.XOR_encrypt(self.ClientSock.recv(MAX_BUFFER))
