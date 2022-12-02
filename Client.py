@@ -113,7 +113,7 @@ class TCPHandler(threading.Thread):
         os.sys.exit()
     else:
       pass
-    
+    print("login success!")
      
 
     # step3：接受browser的第一个包，告知proxy IP和port
