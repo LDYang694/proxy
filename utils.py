@@ -31,3 +31,7 @@ class Encipher():
             Cipheredbyte = byte ^ Key
             CipheredPost += bytes((Cipheredbyte,))
         return CipheredPost
+
+    def decrtpt_info(self,info):
+        info = rsa.decrypt(info,self.server_prikey)
+        return info

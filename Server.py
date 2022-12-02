@@ -7,13 +7,14 @@ from utils import Encipher
 
 # Define 4 status of the HandShake period.
 REFUSED=0 # Connection denied by this server.
-TCP=1 # Build TCP connection with the remoteserver
-UDP=2 # Build UDP association with the remoteserver
-BIND=3 # Reversed Link (Not implemented yet)
-
+# TCP=1 # Build TCP connection with the remoteserver
+# UDP=2 # Build UDP association with the remoteserver
+# BIND=3 # Reversed Link (Not implemented yet)
+ACCESS =1
 MAX_BUFFER=4096 # The max size of the post recieved
 MAX_CLIENT=3 # Maximum waiting clients num
-
+VERSION = 19
+NEED_LOGIN=1
 Method=0 # Authentacation method.
 # 0 represents no authentacation
 # 2 represents Username-Password
@@ -42,8 +43,7 @@ class PostTransmitter(threading.Thread):
                 pass
 
 
-def MyHandShake(Post):
-    return Post
+
 
 
 def HandShake(Post):
@@ -72,6 +72,7 @@ def HandShake(Post):
 
 def Verify(Post):
     Version,ULen=struct.unpack('!BB',Post[:2])
+    assert Version == VERSION
     Uname,PLen=struct.unpack('!'+str(ULen)+"sB",Post[2:3+ULen])
     Pw,=struct.unpack('!'+str(PLen)+'s',Post[3+ULen:])
     if Uname == bytes(Username,encoding='utf-8') and Pw == bytes(Passwd,encoding='utf-8'):
@@ -82,57 +83,57 @@ def Verify(Post):
     return Answer
 
 
-def Connect(Post):
-    '''
-    The second handshake with client.
-    '''
+# def Connect(Post):
+#     '''
+#     The second handshake with client.
+#     '''
     
-    PostInfo={}
-    if Post != b'':
-        PostInfo['Version'],PostInfo['Command'],PostInfo['RSV'],PostInfo['AddrType']\
-        = struct.unpack('!BBBB',Post[:4])
+#     PostInfo={}
+#     if Post != b'':
+#         PostInfo['Version'],PostInfo['Command'],PostInfo['RSV'],PostInfo['AddrType']\
+#         = struct.unpack('!BBBB',Post[:4])
 
-    # AddressType:
-    # 0x01 - IPv4
-    # 0x03 - DomainName (not supported)
-    # 0x04 - IPv6
-    if PostInfo['AddrType'] == 0x01:
-        Length=4
-        # Parse RemoteServer's address by AddrType
-        Format='!'+str(Length)+'sH'
-        RawAddress,PostInfo['RemotePort']=struct.unpack(Format,Post[4:])
-        PostInfo['RemoteAddress']=socket.inet_ntoa(RawAddress)
-    elif PostInfo['AddrType'] == 0x04:
-        Length=16
-        # Parse RemoteServer's address by AddrType
-        Format='!'+str(Length)+'sH'
-        RawAddress,PostInfo['RemotePort']=struct.unpack(Format,Post[4:])
-        PostInfo['RemoteAddress']=socket.inet_ntoa(RawAddress)
-    elif PostInfo['AddrType'] == 0x03:
-        Length,=struct.unpack('!B',Post[4:5])
-        url,PostInfo['RemotePort']=struct.unpack('!'+str(Length)+'sH',Post[5:])
-        PostInfo['Length']=Length
-        PostInfo['url']=url
-        print('Connecting '+str(url,encoding='utf-8'))
-        PostInfo['RemoteAddress']=socket.gethostbyname(url)
-    else:
-        print('Error: Wrong address type.')
-        PostInfo['REP']=0x08
-        return (PostInfo,REFUSED)
+#     # AddressType:
+#     # 0x01 - IPv4
+#     # 0x03 - DomainName (not supported)
+#     # 0x04 - IPv6
+#     if PostInfo['AddrType'] == 0x01:
+#         Length=4
+#         # Parse RemoteServer's address by AddrType
+#         Format='!'+str(Length)+'sH'
+#         RawAddress,PostInfo['RemotePort']=struct.unpack(Format,Post[4:])
+#         PostInfo['RemoteAddress']=socket.inet_ntoa(RawAddress)
+#     elif PostInfo['AddrType'] == 0x04:
+#         Length=16
+#         # Parse RemoteServer's address by AddrType
+#         Format='!'+str(Length)+'sH'
+#         RawAddress,PostInfo['RemotePort']=struct.unpack(Format,Post[4:])
+#         PostInfo['RemoteAddress']=socket.inet_ntoa(RawAddress)
+#     elif PostInfo['AddrType'] == 0x03:
+#         Length,=struct.unpack('!B',Post[4:5])
+#         url,PostInfo['RemotePort']=struct.unpack('!'+str(Length)+'sH',Post[5:])
+#         PostInfo['Length']=Length
+#         PostInfo['url']=url
+#         print('Connecting '+str(url,encoding='utf-8'))
+#         PostInfo['RemoteAddress']=socket.gethostbyname(url)
+#     else:
+#         print('Error: Wrong address type.')
+#         PostInfo['REP']=0x08
+#         return (PostInfo,REFUSED)
 
-    # Respond to Client's Command.
-    if PostInfo['Command'] == 0x01:
-        PostInfo['REP']=0x00
-        return (PostInfo,TCP)
-    elif PostInfo['Command'] == 0x02:
-        PostInfo['REP']=0x08
-        return (PostInfo,BIND)
-    elif PostInfo['Command'] == 0x03:
-        PostInfo['REP']=0x00
-        return (PostInfo,UDP)
-    else:
-        PostInfo['REP']=0x02
-        return (PostInfo,REFUSED)
+#     # Respond to Client's Command.
+#     if PostInfo['Command'] == 0x01:
+#         PostInfo['REP']=0x00
+#         return (PostInfo,TCP)
+#     elif PostInfo['Command'] == 0x02:
+#         PostInfo['REP']=0x08
+#         return (PostInfo,BIND)
+#     elif PostInfo['Command'] == 0x03:
+#         PostInfo['REP']=0x00
+#         return (PostInfo,UDP)
+#     else:
+#         PostInfo['REP']=0x02
+#         return (PostInfo,REFUSED)
 
 
 def MyConnect(Post):
@@ -141,13 +142,10 @@ def MyConnect(Post):
     '''
     PostInfo = {}
     if Post != b'':
-        # PostInfo['Version'],PostInfo['Command'],PostInfo['RSV'],PostInfo['AddrType']\
-        # = struct.unpack('!BBBB',Post[:4])
         Format = '!' + str(4) + 'sH'
         RawAddress, PostInfo['RemotePort'] = struct.unpack(Format, Post)
         PostInfo['RemoteAddress'] = socket.inet_ntoa(RawAddress)
-        PostInfo['REP'] = 0x00
-        return (PostInfo, TCP)
+        return (PostInfo, ACCESS)
     else:
         return (PostInfo, REFUSED)
 
@@ -161,6 +159,20 @@ class TCPHandler(threading.Thread):
         self.ClientSock = ClientSock
 
     def run(self):
+        #step0 :获取握手请求
+        handshake=self.ClientSock.recv(MAX_BUFFER)
+        version,ask_pub_key = struct.unpack("!BB",handshake)
+        try:
+          assert version==VERSION
+          assert ask_pub_key == 0
+        except AssertionError:
+
+          pass
+        finally:
+          handshake_rec = struct("!BBB",version,ask_pub_key,NEED_LOGIN)
+          self.ClientSock.send(handshake_rec)
+          pass
+
         # step1: 获取client的xor_key
         Post = self.ClientSock.recv(MAX_BUFFER)
         encrypted_xor_key = struct.unpack(
@@ -169,65 +181,53 @@ class TCPHandler(threading.Thread):
         )[0]
         encipher.decrypt_and_update_xor_key(encrypted_xor_key)
 
-        # TODO encrypt
-        # 登录认证TODO:
-        if Method == 2:
-            assert(False)
-            # Post=self.ClientSock.recv(MAX_BUFFER)
-            # self.ClientSock.send(Verify(Post))
+       
+        #step2 登录认证
+        Post=self.ClientSock.recv(MAX_BUFFER)
+        Post = encipher.decrtpt_info(Post)
+        self.ClientSock.send(Verify(Post))
 
-        # step2：接受包含IP和port的包
+        # step3：接受包含IP和port的包 并判断
         Post = encipher.XOR_encrypt(self.ClientSock.recv(MAX_BUFFER))
-        self.ClientSock.send(encipher.XOR_encrypt(MyHandShake(Post)))
+        PostInfo, Status = MyConnect(Post)
+        if Status==REFUSED:
+            print('Request refused.')
+            Answer=struct.pack('!BB'+str(4)+'sH',\
+            PostInfo['Version'],REFUSED,socket.inet_ntoa(PostInfo['RemoteAddress']),PostInfo['RemotePort'])
+            self.ClientSock.send(encipher.XOR_encrypt(Answer))
+            self.ClientSock.close()
+            return
+        else:
+            Answer = struct.pack('!BB'+str(4)+'sH',\
+            PostInfo['Version'],REFUSED,socket.inet_ntoa(PostInfo['RemoteAddress']),PostInfo['RemotePort'])
+            self.ClientSock.send(encipher.XOR_encrypt(Answer))
+            try:
+                RemoteSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                RemoteSock.connect((PostInfo['RemoteAddress'], PostInfo['RemotePort']))
+            except ConnectionRefusedError:
+                print('Error: Connection refused.')
+                RemoteSock.close()
+            else:
+                # step4：开始持续发送和接受包
+                SendThread = PostTransmitter(self.ClientSock, RemoteSock)
+                AcceptThread = PostTransmitter(RemoteSock, self.ClientSock)
+                SendThread.start()
+                AcceptThread.start()
         # 第二次建立连接
         # RawPost=self.ClientSock.recv(MAX_BUFFER)
         # Post=Encipher(RawPost)
-        PostInfo, Status = MyConnect(Post)
+        
 
-        # Judge Status
-        if Status == REFUSED:
-            assert(False)
-            # If server refuses client's request,send the answer and close the socket.
-            # print('Request refused.')
-            # Answer=struct.pack('!BBBB',\
-            # PostInfo['Version'],PostInfo['REP'],PostInfo['RSV'],PostInfo['AddrType'])
-            # self.ClientSock.send(Encipher(Answer))
-            # self.ClientSock.close()
-            return
-        else:
-            # Assemble the answer
-            # if PostInfo['AddrType'] == 0x01:
-            #     Length = 4
-            #     # Answer=struct.pack('!BBBB'+str(Length)+'sH',\
-            #     # PostInfo['Version'],PostInfo['REP'],PostInfo['RSV'],PostInfo['AddrType'],\
-            #     # socket.inet_aton(PostInfo['RemoteAddress']),PostInfo['RemotePort'])
-            # else:
-            #     assert(False)
-            # Length = 0
-            # Connect or associate with the remote server.
-            if Status == TCP:
-                try:
-                    RemoteSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    RemoteSock.connect((PostInfo['RemoteAddress'], PostInfo['RemotePort']))
-                except ConnectionRefusedError:
-                    print('Error: Connection refused.')
-                    RemoteSock.close()
-                else:
-                    # step4：开始持续发送和接受包
-                    SendThread = PostTransmitter(self.ClientSock, RemoteSock)
-                    AcceptThread = PostTransmitter(RemoteSock, self.ClientSock)
-                    SendThread.start()
-                    AcceptThread.start()
-                    # RAM leakage warning
-            elif Status == UDP:
-                assert(False)
-                # RemoteSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                # self.ClientSock.send(Encipher(Answer))
-            else:
-                assert(False)
-                # self.ClientSock.send(Encipher(Answer))
-                # self.ClientSock.close()
-                return
+        # # Judge Status
+        # if Status == REFUSED:
+        #     # assert(False)
+        #     # If server refuses client's request,send the answer and close the socket.
+           
+        # else:
+        #     # Connect or associate with the remote server.
+        #     if Status == ACCESS:
+                
+           
 
 
 if __name__ == '__main__':
