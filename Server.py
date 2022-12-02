@@ -75,10 +75,13 @@ def Verify(Post):
     assert Version == VERSION
     Uname,PLen=struct.unpack('!'+str(ULen)+"sB",Post[2:3+ULen])
     Pw,=struct.unpack('!'+str(PLen)+'s',Post[3+ULen:])
+    print(Uname,Pw)
     if Uname == bytes(Username,encoding='utf-8') and Pw == bytes(Passwd,encoding='utf-8'):
         reply=0x00
+        print("Verify Success!!!!!")
     else:
         reply=0xff
+        print("Verify Fail   !!!!!")
     Answer=struct.pack('!BB',Version,reply)
     return Answer
 
