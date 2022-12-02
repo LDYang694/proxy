@@ -117,10 +117,12 @@ class TCPHandler(threading.Thread):
      
 
     # step3：接受browser的第一个包，告知proxy IP和port
-  
-    Post = self.ClientSock.recv(MAX_BUFFER)
-    addresss = [int(r) for r in re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)', str(Post, encoding='utf-8')).groups()]
-    port = 80
+    try:
+      Post = self.ClientSock.recv(MAX_BUFFER)
+      addresss = [int(r) for r in re.search(r'Host: ([0-9]+).([0-9]+).([0-9]+).([0-9]+)', str(Post, encoding='utf-8')).groups()]
+      port = 80
+    except Exception:
+      raise Exception("Not Http Pack,can handler")
     self.RemoteSock.send(encipher.XOR_encrypt(
       struct.pack(
         '!B' + str(4) + 'BH',VERSION,
