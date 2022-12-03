@@ -6,20 +6,15 @@ import json
 import re
 from utils import Encipher
 
-# Define 4 status of the HandShake period.
 REFUSED = 0  # Connection denied by this server.
-TCP = 1  # Build TCP connection with the remoteserver
-UDP = 2  # Build UDP association with the remoteserver
-BIND = 3  # Reversed Link (Not implemented yet)
+
 
 MAX_BUFFER = 4096  # The max size of the post recieved
 MAX_CLIENT = 3  # Maximum waiting clients num
 
 VERSION = 19
 
-Method = 0  # Authentacation method.
-# 0 represents no authentacation
-# 2 represents Username-Password
+
 Username = ''
 Passwd = ''
 
@@ -65,7 +60,6 @@ class RecvPostTransmitter(threading.Thread):
     while True:
       try:
         Post=self.AcceptSock.recv(MAX_BUFFER)
-         # SafePost=Encipher(Post)
         self.SendSock.send(encipher.XOR_encrypt(Post))
       except BrokenPipeError:
         pass
@@ -108,7 +102,6 @@ class TCPHandler(threading.Thread):
       Answer=self.RemoteSock.recv(MAX_BUFFER)
       version,answer = struct.unpack("!BB",Answer)
       if answer != 0:
-        print('answer',answer)
         print('Invalid Username or wrong password.')
         os.sys.exit()
     else:
@@ -123,9 +116,8 @@ class TCPHandler(threading.Thread):
       port = 80
       print("Get Http Pack to {}:{}".format(addresss,port))
     except Exception:
-      print("Not Http Pack,can handler")
+      print("Not Http Pack,can not handler")
       return 
-      raise Exception("Not Http Pack,can handler")
     self.RemoteSock.send(encipher.XOR_encrypt(
       struct.pack(
         '!B' + str(4) + 'BH',VERSION,
@@ -179,17 +171,12 @@ if __name__ == '__main__':
     try:
       Address=Config['LocalIP']
       Port=Config['LocalPort']
-      Method=Config['Method']
       RemoteAddress=Config['RemoteIP']
       RemotePort=Config['RemotePort']
-      if Method == 2:
-        Username=Config['Username']
-        Passwd=Config['Password']
-      elif Method == 0:
-        pass
-      else:
-        print("This method is not supported.")
-        os.sys.exit()
+      Username=Config['Username']
+      Passwd=Config['Password']
+
+
     except KeyError:
       print('Config information error. Please check your config file.')
       os.sys.exit()
