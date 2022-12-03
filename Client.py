@@ -123,6 +123,8 @@ class TCPHandler(threading.Thread):
       port = 80
       print("Get Http Pack to {}:{}".format(addresss,port))
     except Exception:
+      print("Not Http Pack,can handler")
+      return 
       raise Exception("Not Http Pack,can handler")
     self.RemoteSock.send(encipher.XOR_encrypt(
       struct.pack(
@@ -135,6 +137,7 @@ class TCPHandler(threading.Thread):
     version,status,rawaddress,port = struct.unpack("!BB"+str(4)+"sH",confirm)
     if status==REFUSED:
       #
+      print("REFUSED!!!")
       os.sys.exit()
     
     # step4：将browser的第一个包发送给proxy
