@@ -196,7 +196,7 @@ class TCPHandler(threading.Thread):
         if Status==REFUSED:
             print('Request refused.')
             Answer=struct.pack('!BB'+str(4)+'sH',\
-            PostInfo['Version'],REFUSED,socket.inet_aton(PostInfo['RemoteAddress']),PostInfo['RemotePort'])
+            VERSION,REFUSED,socket.inet_aton('0.0.0.0'),0)
             self.ClientSock.send(encipher.XOR_encrypt(Answer))
             self.ClientSock.close()
             return
