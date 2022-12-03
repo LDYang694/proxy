@@ -103,6 +103,7 @@ class TCPHandler(threading.Thread):
       version,answer = struct.unpack("!BB",Answer)
       if answer != 0:
         self.RemoteSock.close()
+        self.ClientSock.close()
         print('Invalid Username or wrong password.')
         os.sys.exit()
     else:
