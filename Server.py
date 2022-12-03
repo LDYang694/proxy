@@ -108,6 +108,7 @@ class TCPHandler(threading.Thread):
         Answer,reply = Verify(Post)
         self.ClientSock.send(Answer)
         if reply!=0x00:
+            self.ClientSock.close()
             return
 
         # step3：接受包含IP和port的包 并判断
