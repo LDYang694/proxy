@@ -31,7 +31,6 @@ class PostTransmitter(threading.Thread):
         while True:
             try:
                 Post = self.AcceptSock.recv(MAX_BUFFER)
-                # SafePost=Encipher(Post)
                 self.SendSock.send(encipher.XOR_encrypt(Post))
             except BrokenPipeError:
                 pass
@@ -54,7 +53,7 @@ def Verify(Post):
         reply=0xff
         print("Verify Fail   !!!!!")
     Answer=struct.pack('!BB',Version,reply)
-    return Answer
+    return Answer,reply
 
 
 
@@ -106,7 +105,10 @@ class TCPHandler(threading.Thread):
         #step2 登录认证
         Post=self.ClientSock.recv(MAX_BUFFER)
         Post = encipher.decrtpt_info(Post)
-        self.ClientSock.send(Verify(Post))
+        Answer,reply = Verify(Post)
+        self.ClientSock.send(Answer)
+        if reply!=0x00:
+            return
 
         # step3：接受包含IP和port的包 并判断
         Post = encipher.XOR_encrypt(self.ClientSock.recv(MAX_BUFFER))

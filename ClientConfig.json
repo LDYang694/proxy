@@ -4,6 +4,5 @@
   "LocalIP":"127.0.0.1",
   "LocalPort":5000,
   "Username":"admin",
-  "Password":"123456",
-  "Method":2
+  "Password":"123456"
 }
