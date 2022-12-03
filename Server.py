@@ -51,7 +51,7 @@ def Verify(Post):
         print("Verify Success!!!!!")
     else:
         reply=0xff
-        print("Verify Fail   !!!!!")
+       
     Answer=struct.pack('!BB',Version,reply)
     return Answer,reply
 
@@ -108,7 +108,9 @@ class TCPHandler(threading.Thread):
         Answer,reply = Verify(Post)
         self.ClientSock.send(Answer)
         if reply!=0x00:
+            print("Verify Fail   !!!!!")
             self.ClientSock.close()
+            os.sys.exit()
             return
 
         # step3：接受包含IP和port的包 并判断
