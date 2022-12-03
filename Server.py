@@ -125,7 +125,7 @@ class TCPHandler(threading.Thread):
             return
         else:
             Answer = struct.pack('!BB'+str(4)+'sH',\
-            PostInfo['Version'],REFUSED,socket.inet_aton(PostInfo['RemoteAddress']),PostInfo['RemotePort'])
+            PostInfo['Version'],ACCESS,socket.inet_aton(PostInfo['RemoteAddress']),PostInfo['RemotePort'])
             self.ClientSock.send(encipher.XOR_encrypt(Answer))
             try:
                 RemoteSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
