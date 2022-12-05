@@ -79,6 +79,8 @@ class TCPHandler(threading.Thread):
       self.RemoteSock.connect((RemoteAddress,RemotePort))
     except:
       print('Some error occured.')
+      self.ClientSock.close()
+      self.RemoteSock.close()
 
   def run(self):
     #step0:向server发送握手请求
@@ -119,6 +121,8 @@ class TCPHandler(threading.Thread):
       print("Get Http Pack to {}:{}".format(addresss,port))
     except Exception:
       print("Not Http Pack,can not handler")
+      self.ClientSock.close()
+      self.RemoteSock.close()
       return 
     self.RemoteSock.send(encipher.XOR_encrypt(
       struct.pack(
@@ -131,6 +135,7 @@ class TCPHandler(threading.Thread):
     version,status,rawaddress,port = struct.unpack("!BB"+str(4)+"sH",confirm)
     if status==REFUSED:
       #
+      self.ClientSock.close()
       self.RemoteSock.close()
       print("REFUSED!!!")
       os.sys.exit()

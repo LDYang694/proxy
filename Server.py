@@ -133,14 +133,14 @@ class TCPHandler(threading.Thread):
             except ConnectionRefusedError:
                 print('Error: Connection refused.')
                 RemoteSock.close()
+                self.ClientSock.close()
+                return
             else:
                 # step4：开始持续发送和接受包
                 SendThread = PostTransmitter(self.ClientSock, RemoteSock)
                 AcceptThread = PostTransmitter(RemoteSock, self.ClientSock)
                 SendThread.start()
-                AcceptThread.start()
-                
-           
+                AcceptThread.start()           
 
 
 if __name__ == '__main__':
@@ -186,8 +186,3 @@ if __name__ == '__main__':
         os.sys.exit()
     finally:
         ServerSock.close()
-
-
-    
-    
-    
