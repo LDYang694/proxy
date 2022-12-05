@@ -7,14 +7,17 @@ class Encipher():
     def gen_new_xor_key(self):
         self.xor_key = random.randint(0, 255)
 
-    def __init__(self) -> None:
+    def __init__(self,is_server=True) -> None:
         self.gen_new_xor_key()
         with open("vpn_server.pub", "r") as file_pub:
             pub_data = file_pub.read()
             self.server_pubkey = rsa.PublicKey.load_pkcs1(pub_data)
-        with open("vpn_server", "r") as file_pri:
-            pri_data = file_pri.read()
-            self.server_prikey = rsa.PrivateKey.load_pkcs1(pri_data)
+        self.server_prikey = None
+        if is_server:
+            with open("vpn_server", "r") as file_pri:
+                pri_data = file_pri.read()
+                self.server_prikey = rsa.PrivateKey.load_pkcs1(pri_data)
+        
 
     def get_encrypted_xor_key(self):
         return rsa.encrypt(self.xor_key.to_bytes(1, byteorder='big'), self.server_pubkey)

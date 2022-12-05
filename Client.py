@@ -152,7 +152,7 @@ class TCPHandler(threading.Thread):
 
 
 if __name__ == '__main__':
-  encipher = Encipher()
+  encipher = Encipher(is_server=False)
   ServerSock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
   print('Welcome !\n')
   try:
