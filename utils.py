@@ -40,5 +40,5 @@ class Encipher():
         return info
     
     def encrypt_info(self,info):
-        info = rsa.encrypt(info,self.server_prikey)
+        info = rsa.encrypt(info,self.server_pubkey)
         return info
